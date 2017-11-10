@@ -3,10 +3,8 @@
 var path = process.argv[2], // 请输入项目路径
   exec = require('child_process').exec,
   fs   = require('fs'),
-  path = require('path'),
   dir  = './file',
   __dirname = path;
-
 
 function fileMerge(fileSource, exportFilePath) {
 
@@ -147,6 +145,12 @@ copyDir(dir+'/assets', __dirname+'/assets', function(err) {
   }
 })
 
+copyDir(dir+'/filters', __dirname+'/filters', function(err) {
+  if(err) {
+    console.log('filters写入失败')
+  }
+})
+
 copyDir(dir+'/middleware', __dirname+'/middleware', function(err) {
   if(err) {
     console.log('middleware写入失败')
@@ -165,7 +169,10 @@ copyDir(dir+'/server', __dirname+'/server', function(err) {
   }
 })
 
-//console.log('添加pm2启动配置文件')
+//console.log('eslint配置')
+copyFile(dir+'/.eslintignore', __dirname+'/.eslintignore')
+copyFile(dir+'/.eslintrc.js', __dirname+'/.eslintrc.js')
+// console.log('添加pm2启动配置文件')
 copyFile(dir+'/ecosystem.config.js', __dirname+'/ecosystem.config.js')
 
 // console.log('开始处理nuxt.config.js')
