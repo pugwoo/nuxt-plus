@@ -2,11 +2,9 @@ import Vue from 'vue'
 import axios from 'axios'
 import qs from 'qs'
 
-let options = {}
-// The server-side needs a full url to works
-if (process.server) {
-  options.baseURL =  process.env.baseUrl
-}
+const service = axios.create({
+  baseURL: process.env.baseUrl
+})
 // 名称: 全替换函数
 // 功能: 把json中所有的undefined值替换成空字符串
 // 返回: 处理完成的json
@@ -44,21 +42,21 @@ const replaceAll = json => {
 }
 
 // 拦截器
-axios.interceptors.request.use(config => {
+service.interceptors.request.use(config => {
   if(config.method === 'post') {
-    config.data = replaceAll(config.data);
-    config.data = qs.stringify(config.data);
-  }
-  return config
+  config.data = replaceAll(config.data);
+  config.data = qs.stringify(config.data);
+}
+return config
 }, error => {
   return Promise.reject(error)
 })
 
-axios.interceptors.response.use(response => {
+service.interceptors.response.use(response => {
   return response
 }, error => {
   return Promise.reject(error)
 })
 
 Vue.prototype.$http = axios
-export default axios.create(options)
+export default service

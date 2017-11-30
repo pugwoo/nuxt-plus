@@ -1,58 +1,96 @@
+
+
 /*---------- START ----------*/
 /********** DO NOT MODIFY **********/
+/**
+ * 将值插入数组中
+ * @param path // module.exports下的路径
+ * @param value // 需要push到数组的值或者对象
+ */
+function pushArr(path, value) {
+  var pathArr = path.split('.'),
+    len = pathArr.length,
+    str = 'module.exports';
+  for (var i = 0; i < len; i++ ) {
+    str += '.'+pathArr[i];
+    if(eval(str) == undefined){
+      eval(str + '= {}')
+      if(i == len-1) {
+        eval(str + '= []')
+      }
+    }
+  }
+  eval(str).push(value)
+}
+
+/**
+ * 将值插入map对象中
+ * @param path // module.exports下的路径
+ * @param key // 键值对的名称 如果不需要可不填 value的值将直接赋给path 此时value的值类型必须为 boolean String Number
+ * @param value // 键值对的值
+ */
+function pushMap(path, key, value) {
+  var pathMap = path.split('.'),
+    len = pathMap.length,
+    str = 'module.exports';
+  for (var i = 0; i < len; i++ ) {
+    str += '.'+pathMap[i];
+    if(eval(str) == undefined){
+      eval(str + '= {}')
+    }
+  }
+  if(key) {
+    eval(str)[key] = value
+  } else {
+    eval(str + '=' + value)
+  }
+}
 // 为JS和Vue文件定制babel配置。https://nuxtjs.org/api/configuration-build/#analyze
-module.exports.build.babel = {
-  presets: ['es2015', 'stage-2'],
-  plugins: [
-    'transform-async-to-generator',
-    'transform-runtime'
-  ],
-  comments: true
-}
+pushMap('build.babel', 'presets', ['es2015', 'stage-2'])
+pushMap('build.babel', 'plugins', ['transform-async-to-generator', 'transform-runtime'])
+pushMap('build.babel', 'comments', true)
+
+// 打包公共模块添加
+pushArr('build.vendor', 'swiper')
+pushArr('build.vendor', 'qs')
+
 // 插入css自动补全
-module.exports.build.postcss = [
-  require('autoprefixer')({
-    browsers: ['last 3 versions']
-  })
-]
+pushArr('build.postcss', require('postcss-nested')())
+pushArr('build.postcss', require('postcss-responsive-type')())
+pushArr('build.postcss', require('postcss-hexrgba')())
+pushArr('build.postcss', require('autoprefixer')({browsers: ['last 3 versions']}))
+
 // 设置缓存组件数量及时间
-module.exports.cache = {
-  max: 10,
-  maxAge: 1000 * 60 * 10
-}
+pushMap('cache', 'max', 10)
+pushMap('cache', 'maxAge', 1000 * 60 * 10)
+
 // 设置全局css
-module.exports.css.push({ src: '~/assets/scss/app.scss', lang: 'scss' })
+pushArr('css', { src: '~/assets/scss/app.scss', lang: 'scss' })
 
 // 设置开发环境判断值
-module.exports.dev = (process.env.NODE_ENV !== 'production')
+pushMap('dev', '', (process.env.NODE_ENV !== 'production'))
 
 // 设置生产环境变量
-module.exports.env = {
-  baseUrl: `http://${process.env.HOST || 'localhost'}:${process.env.PORT || 3000}`
-}
+pushMap('env', 'baseUrl', `http://${process.env.HOST || 'localhost'}:${process.env.PORT || 3000}`)
 
 // 开启离线应用
-module.exports.offline = true
+pushMap('offline', '', true)
 
 // 添加插件
-if(!module.exports.plugins) {
-  module.exports.plugins = []
-}
 // 1.添加全局过滤器
-module.exports.plugins.push({ src: '~/plugins/filters.js' })
+pushArr('plugins', { src: '~/plugins/filters.js' })
 // 2.添加google统计
-module.exports.plugins.push({ src: '~/plugins/ga.js', ssr: false })
+pushArr('plugins', { src: '~/plugins/ga.js', ssr: false })
 // 3.添加复制事件后插入版权声明
-module.exports.plugins.push({ src: '~/plugins/copy-right.js', ssr: false })
+pushArr('plugins', { src: '~/plugins/copy-right.js', ssr: false })
 // 4.添加百度seo自动push脚本
-module.exports.plugins.push({ src: '~/plugins/baidu-seo-push.js', ssr: false })
+pushArr('plugins', { src: '~/plugins/baidu-seo-push.js', ssr: false })
 // 5.添加开启离线应用
-module.exports.plugins.push({ src: '~/plugins/offline.js', ssr: false })
-
+pushArr('plugins', { src: '~/plugins/offline.js', ssr: false })
+// 6.添加swiper组件
+pushArr('plugins', { src: '~/plugins/swiper.js', ssr: false })
 // 添加路由中间件
-if(!module.exports.router) {
-  module.exports.router = {}
-}
-module.exports.router.middleware = 'ssr-cookie'
+pushArr('router.middleware', 'ssr-cookie')
+
 /********** DO NOT MODIFY **********/
 /*---------- END ----------*/

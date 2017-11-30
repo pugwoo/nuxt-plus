@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 var path = process.argv[2], // 请输入项目路径
-  exec = require('child_process').exec,
-  fs   = require('fs'),
-  dir  = './file',
-  __dirname = path;
+    exec = require('child_process').exec,
+    fs   = require('fs'),
+    dir  = './file',
+    __dirname = path;
 
 function fileMerge(fileSource, exportFilePath) {
 
@@ -181,23 +181,25 @@ fs.readFile(__dirname + '/nuxt.config.js', {flag: 'r+', encoding: 'utf8'}, funct
     console.error(err);
     return;
   }
-  var reg = /\n\n\/\*---------- START ----------\*\/(\s*|\S*|`a)*\/\*---------- END ----------\*\//g
+  var reg = /\/\*-{10} START -{10}\*\/[\S\s]*\/\*-{10} END -{10}\*\//g;
   if(!data.match(reg)) {
     var fileSourceNuxt = [__dirname+'/nuxt.config.js', dir+'/nuxt.config.js'];
     var goalFileNuxt = __dirname+"/nuxt.config.js";
     fileMerge(fileSourceNuxt,goalFileNuxt);
     console.log('nuxt.config.js处理完成')
   } else {
-    fs.writeFile(__dirname + '/nuxt.config.js', data.replace(data.match(reg)[0], ''), 'utf8', (err) => {
-      if (err) throw err;
-      var fileSourceNuxt = [__dirname+'/nuxt.config.js', dir+'/nuxt.config.js'];
-      var goalFileNuxt = __dirname+"/nuxt.config.js";
-      fileMerge(fileSourceNuxt,goalFileNuxt);
-      console.log('nuxt.config.js处理完成')
-    });
+    replace(data, data.match(reg)[0])
   }
 });
-
+function replace(oldData, matchData) {
+  fs.readFile(dir + '/nuxt.config.js', {flag: 'r+', encoding: 'utf8'}, function (err, data) {
+    if (err) throw err;
+    fs.writeFile(__dirname + '/nuxt.config.js', oldData.replace(matchData, data), 'utf8', (err) => {
+      if (err) throw err;
+    console.log('nuxt.config.js处理完成')
+  });
+  })
+}
 // console.log('开始处理package.json')
 var json1,json2;
 fs.readFile(dir + '/package.json', {flag: 'r+', encoding: 'utf8'}, function (err, data) {
@@ -223,7 +225,6 @@ function merge(json1, json2) {
   json2 = mergeJsonObject(json2, {devDependencies: devDependencies})
   fs.writeFile(__dirname + '/package.json', jsonStringify(json2, 2), 'utf8', (err) => {
     if (err) throw err;
-    console.log('package.json处理完成')
-  });
+  console.log('package.json处理完成')
+});
 }
-
